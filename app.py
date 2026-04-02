@@ -1,21 +1,30 @@
 from fastapi import FastAPI
-from env import HostelEnv
+from tasks import get_task
+from grader import evaluate
 
 app = FastAPI()
 
-env = HostelEnv()
+state = {}
 
-# Home route
 @app.get("/")
 def home():
     return {"message": "Hostel AI Environment Running"}
 
-# ✅ IMPORTANT: POST (not GET)
 @app.post("/reset")
 def reset():
-    return env.reset()
+    global state
+    state = {"task": get_task()}
+    return state["task"]
 
-# Step route
 @app.post("/step")
 def step(action: dict):
-    return env.step(action)
+    global state
+    correct = evaluate(state["task"], action)
+    reward = 1 if correct else 0
+
+    return {
+        "reward": reward,
+        "done": True,
+        "task_type": state["task"]["type"],
+        "correct_answer": state["task"]
+    }
