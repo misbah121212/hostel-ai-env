@@ -2,28 +2,41 @@ import requests
 
 url = "http://127.0.0.1:8000"
 
-# Step 1: get complaint
-res = requests.get(f"{url}/reset")
-data = res.json()
+for _ in range(5):
+    res = requests.get(f"{url}/reset")
+    data = res.json()
 
-complaint = data["complaint"]
-print("Complaint:", complaint)
+    complaint = data["complaint"]
+    task_type = data["task_type"]
 
-# Step 2: simple AI logic
-text = complaint.lower()
+    print("\nComplaint:", complaint)
+    print("Task Type:", task_type)
 
-if "water" in text or "leak" in text or "toilet" in text:
-    action = "Plumbing"
-elif "fan" in text or "light" in text:
-    action = "Electricity"
-elif "dirty" in text or "dust" in text or "mess" in text:
-    action = "Cleaning"
-else:
-    action = "Other"
+    text = complaint.lower()
 
-print("Predicted:", action)
+    # CATEGORY LOGIC
+    if "water" in text or "leak" in text:
+        category = "Plumbing"
+    elif "fan" in text or "light" in text:
+        category = "Electricity"
+    elif "dirty" in text:
+        category = "Cleaning"
+    else:
+        category = "Other"
 
-# Step 3: send action
-result = requests.post(f"{url}/step", params={"action": action})
+    action = {"category": category}
 
-print("Result:", result.json())
+    # MEDIUM TASK → ADD PRIORITY
+    if task_type == "medium":
+        if "flood" in text or "extremely" in text:
+            priority = "High"
+        else:
+            priority = "Medium"
+
+        action["priority"] = priority
+
+    print("Action:", action)
+
+    result = requests.post(f"{url}/step", json=action)
+
+    print("Result:", result.json())

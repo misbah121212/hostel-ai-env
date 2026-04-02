@@ -1,10 +1,26 @@
 tasks = [
-    {"complaint": "Water leaking in bathroom", "label": "Plumbing"},
-    {"complaint": "Fan not working", "label": "Electricity"},
-    {"complaint": "Room is very dirty", "label": "Cleaning"},
-    {"complaint": "WiFi not working", "label": "Other"},
-    {"complaint": "Light not turning on", "label": "Electricity"},
-    {"complaint": "Toilet clogged", "label": "Plumbing"},
-    {"complaint": "Dust everywhere in room", "label": "Cleaning"},
-    {"complaint": "Network is slow", "label": "Other"}
+    # EASY TASKS
+    {"type": "easy", "complaint": "Fan not working", "label": "Electricity"},
+    {"type": "easy", "complaint": "Room is dirty", "label": "Cleaning"},
+    {"type": "easy", "complaint": "Water leaking in bathroom", "label": "Plumbing"},
+
+    # MEDIUM TASKS
+    {
+        "type": "medium",
+        "complaint": "Water flooding room",
+        "label": "Plumbing",
+        "priority": "High"
+    },
+    {
+        "type": "medium",
+        "complaint": "Light flickering continuously",
+        "label": "Electricity",
+        "priority": "Medium"
+    },
+    {
+        "type": "medium",
+        "complaint": "Room extremely dirty for days",
+        "label": "Cleaning",
+        "priority": "High"
+    }
 ]

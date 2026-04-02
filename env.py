@@ -7,18 +7,35 @@ class HostelEnv:
 
     def reset(self):
         self.current_task = random.choice(tasks)
-        return {"complaint": self.current_task["complaint"]}
+        return {
+            "complaint": self.current_task["complaint"],
+            "task_type": self.current_task["type"]
+        }
 
     def step(self, action):
-        correct = self.current_task["label"]
+        task_type = self.current_task["type"]
+        correct_label = self.current_task["label"]
 
-        if action == correct:
-            reward = 1
-        else:
-            reward = 0
+        reward = 0
+
+        # EASY TASK
+        if task_type == "easy":
+            if action.get("category") == correct_label:
+                reward = 1
+
+        # MEDIUM TASK
+        elif task_type == "medium":
+            correct_priority = self.current_task["priority"]
+
+            if (action.get("category") == correct_label and
+                action.get("priority") == correct_priority):
+                reward = 1
+            elif action.get("category") == correct_label:
+                reward = 0.5
 
         return {
             "reward": reward,
             "done": True,
-            "correct_answer": correct
+            "task_type": task_type,
+            "correct_answer": self.current_task
         }
