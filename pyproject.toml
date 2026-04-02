@@ -1,0 +1,17 @@
+[project]
+name = "hostel-ai-env"
+version = "0.1.0"
+description = "Hostel AI Environment for complaint classification"
+authors = [
+    { name="Umme Misbah Sikandar" },
+    { name="Iban Nadir Mondal" }
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "requests"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
