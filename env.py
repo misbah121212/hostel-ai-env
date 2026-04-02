@@ -1,51 +1,51 @@
 import random
-from tasks import tasks
+from tasks import TASKS
 
 class HostelEnv:
     def __init__(self):
         self.current_task = None
 
     def reset(self):
-        self.current_task = random.choice(tasks)
+        self.current_task = random.choice(TASKS)
         return {
+            "task_type": self.current_task["type"],
             "complaint": self.current_task["complaint"],
-            "task_type": self.current_task["type"]
+            "priority": self.current_task.get("priority", None)
         }
 
     def step(self, action):
-        task_type = self.current_task["type"]
+        if not self.current_task:
+            return {"error": "Call reset first"}
+
         reward = 0
+        done = True
+
+        task_type = self.current_task["type"]
 
         # EASY
         if task_type == "easy":
-            if action.get("category") == self.current_task["label"]:
+            if action.get("action") == self.current_task["label"]:
                 reward = 1
 
         # MEDIUM
         elif task_type == "medium":
-            correct_label = self.current_task["label"]
-            correct_priority = self.current_task["priority"]
-
-            if (action.get("category") == correct_label and
-                action.get("priority") == correct_priority):
+            if (
+                action.get("category") == self.current_task["label"]
+                and action.get("priority") == self.current_task["priority"]
+            ):
                 reward = 1
-            elif action.get("category") == correct_label:
-                reward = 0.5
 
         # HARD
         elif task_type == "hard":
-            correct_labels = set(self.current_task["labels"])
-            predicted_labels = set(action.get("categories", []))
-            correct_priority = self.current_task["priority"]
-
-            if predicted_labels == correct_labels and action.get("priority") == correct_priority:
+            if (
+                set(action.get("categories", [])) == set(self.current_task["labels"])
+                and action.get("priority") == self.current_task["priority"]
+            ):
                 reward = 1
-            elif len(predicted_labels.intersection(correct_labels)) > 0:
-                reward = 0.5
 
         return {
             "reward": reward,
-            "done": True,
+            "done": done,
             "task_type": task_type,
             "correct_answer": self.current_task
         }
