@@ -14,26 +14,36 @@ for _ in range(5):
 
     text = complaint.lower()
 
-    # CATEGORY LOGIC
-    if "water" in text or "leak" in text:
-        category = "Plumbing"
-    elif "fan" in text or "light" in text:
-        category = "Electricity"
-    elif "dirty" in text:
-        category = "Cleaning"
-    else:
-        category = "Other"
+    categories = []
 
-    action = {"category": category}
+    if "water" in text:
+        categories.append("Plumbing")
+    if "light" in text or "fan" in text:
+        categories.append("Electricity")
+    if "dirty" in text:
+        categories.append("Cleaning")
 
-    # MEDIUM TASK → ADD PRIORITY
-    if task_type == "medium":
-        if "flood" in text or "extremely" in text:
-            priority = "High"
-        else:
-            priority = "Medium"
+    categories = list(set(categories))
 
-        action["priority"] = priority
+    # EASY
+    if task_type == "easy":
+        action = {"category": categories[0] if categories else "Other"}
+
+    # MEDIUM
+    elif task_type == "medium":
+        priority = "High" if "flood" in text or "extremely" in text else "Medium"
+        action = {
+            "category": categories[0] if categories else "Other",
+            "priority": priority
+        }
+
+    # HARD
+    elif task_type == "hard":
+        priority = "High" if "leaking" in text else "Medium"
+        action = {
+            "categories": categories,
+            "priority": priority
+        }
 
     print("Action:", action)
 

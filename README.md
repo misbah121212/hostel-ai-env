@@ -1,197 +1,215 @@
-# 🏠 Hostel AI Environment (OpenEnv Hackathon)
+---
+title: Hostel AI Environment
+emoji: 🏠
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_file: app.py
+pinned: false
+---
+# 🏠 Hostel AI Environment (Agentic System)
 
-## 📌 Overview
+An intelligent AI-powered environment designed to simulate real-world hostel issue management using agent-based decision-making.
 
-This project simulates a **real-world hostel complaint management system** where an AI agent learns to classify and prioritize issues.
+---
 
-The environment follows the **OpenEnv standard** with:
+## 🚀 Overview
 
-* `reset()` → provides a new complaint
-* `step(action)` → evaluates the agent’s response
+This project models a **Hostel Complaint Management System** where an AI agent processes different types of complaints and predicts the correct action required.
+
+The system supports **three difficulty levels**:
+
+* 🟢 **Easy** → Simple classification
+* 🟡 **Medium** → Classification + Priority
+* 🔴 **Hard** → Multi-label classification + Priority
 
 ---
 
 ## 🎯 Problem Statement
 
-In hostels, students raise complaints like:
+In hostels, students often raise complaints like:
 
-* Water leakage 🚿
-* Electrical issues ⚡
-* Cleaning problems 🧹
+* “Fan not working”
+* “Water leaking”
+* “Room is dirty”
 
-The goal is to build an AI agent that:
+Managing these manually is inefficient.
 
-1. **Classifies the complaint correctly**
-2. **Assigns priority (for complex cases)**
+👉 This project builds an **AI agent** that:
 
----
-
-## 🧠 Tasks Implemented
-
-### 🟢 Easy Tasks
-
-Agent must classify complaint into correct category:
-
-| Complaint                 | Correct Category |
-| ------------------------- | ---------------- |
-| Fan not working           | Electricity      |
-| Room is dirty             | Cleaning         |
-| Water leaking in bathroom | Plumbing         |
-
-👉 Reward:
-
-* Correct → **+1**
-* Wrong → **0**
+* Understands the complaint
+* Classifies it into the correct category
+* Assigns the correct priority
+* Returns structured output
 
 ---
 
-### 🟡 Medium Tasks
+## 🧠 Agentic Approach
 
-Agent must:
+This system follows an **agent-based workflow**:
 
-1. Classify category
-2. Assign priority
-
-| Complaint                     | Category    | Priority |
-| ----------------------------- | ----------- | -------- |
-| Water flooding room           | Plumbing    | High     |
-| Light flickering continuously | Electricity | Medium   |
-| Room extremely dirty for days | Cleaning    | High     |
-
-👉 Reward:
-
-* Correct category + priority → **+1**
-* Only category correct → **+0.5**
-* Wrong → **0**
+1. Environment generates a task (`/reset`)
+2. Agent observes the complaint
+3. Agent decides the correct action
+4. Agent responds via (`/step`)
+5. Environment evaluates and gives reward
 
 ---
 
-## ⚙️ Environment Design
+## ⚙️ Tech Stack
 
-### 🔹 Observation (from `/reset`)
+* 🐍 Python
+* ⚡ FastAPI
+* 🐳 Docker
+* 🤗 Hugging Face Spaces
 
-```json
-{
-  "complaint": "Water leaking in bathroom",
-  "task_type": "easy"
-}
+---
+
+## 📂 Project Structure
+
+```
+hostel-ai-env/
+│── app.py           # FastAPI server
+│── env.py           # Environment logic
+│── tasks.py         # Task definitions (easy, medium, hard)
+│── grader.py        # Evaluation logic
+│── baseline.py      # Sample baseline agent
+│── requirements.txt # Dependencies
+│── Dockerfile       # Deployment config
+│── README.md        # Documentation
 ```
 
 ---
 
-### 🔹 Action (to `/step`)
+## 🔄 API Workflow
 
-#### Easy Task:
+### 🔹 1. Reset Environment
 
-```json
-{
-  "category": "Plumbing"
-}
-```
+**GET /reset**
 
-#### Medium Task:
+Returns a new task:
 
 ```json
 {
-  "category": "Plumbing",
+  "task_type": "medium",
+  "complaint": "Room extremely dirty",
   "priority": "High"
 }
 ```
 
 ---
 
-### 🔹 Response
+### 🔹 2. Submit Action
+
+**POST /step**
+
+---
+
+### 🟢 Easy Task Input
 
 ```json
 {
-  "reward": 1,
-  "done": true,
-  "task_type": "medium",
-  "correct_answer": {...}
+  "action": "Cleaning"
 }
 ```
 
 ---
 
-## 🚀 How to Run Locally
+### 🟡 Medium Task Input
 
-### 1. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Run server
-
-```bash
-uvicorn app:app --reload
-```
-
-### 3. Open API docs
-
-```
-http://127.0.0.1:8000/docs
+```json
+{
+  "category": "Cleaning",
+  "priority": "High"
+}
 ```
 
 ---
 
-## 🐳 Docker Support
+### 🔴 Hard Task Input
 
-Run using Docker:
-
-```bash
-docker build -t hostel-ai-env .
-docker run -p 7860:7860 hostel-ai-env
+```json
+{
+  "categories": ["Cleaning", "Electricity"],
+  "priority": "Medium"
+}
 ```
 
 ---
 
-## 🤖 Baseline Agent
+### ✅ Response Example
 
-A simple rule-based agent is implemented in `baseline.py`:
-
-* Uses keyword matching
-* Handles both easy and medium tasks
-* Produces reproducible results
+```json
+{
+  "reward": 1,
+  "done": true
+}
+```
 
 ---
 
-## 📊 Evaluation
+## 🧪 Evaluation Logic
 
-* Rewards range from **0 to 1**
-* Medium tasks include **partial rewards**
-* Deterministic grading
+* ✔ Correct classification → Reward = 1
+* ❌ Incorrect classification → Reward = 0
+* ✔ Exact match required (case-sensitive)
+* ✔ Hard tasks require ALL labels
 
 ---
 
 ## 🌍 Deployment
 
-The app is deployed on Hugging Face Spaces and accessible via:
+This project is deployed on **Hugging Face Spaces using Docker**.
 
-* `/docs` for testing API
-* Public URL for evaluation
-
----
-
-## ✨ Features
-
-✔ Real-world scenario (hostel complaints)
-✔ Multi-level tasks (easy → medium)
-✔ Partial reward system
-✔ API-based environment
-✔ Dockerized deployment
+👉 The API is publicly accessible and can be tested using Swagger UI (`/docs`).
 
 ---
 
-## 📌 Future Improvements
+## 💡 Key Features
 
-* Add **hard tasks** (multi-issue complaints)
-* NLP-based understanding instead of keywords
-* Priority escalation logic
+✨ Multi-level task handling
+✨ Real-world problem simulation
+✨ Agent-environment interaction
+✨ FastAPI-based API
+✨ Fully deployable system
 
 ---
 
-## 👩‍💻 Authors
+## 👥 Authors
 
-- Iban Nadir Mondal  
-- Umme Misbah Sikandar
+* 👤 Iban Nadir Mondal
+* 👤 Umme Misbah Sikandar
+
+---
+
+## 🏁 Conclusion
+
+This project demonstrates how **AI agents can automate real-world problem classification systems** efficiently.
+
+It combines:
+
+* Decision-making
+* Classification
+* System design
+
+into a single scalable solution.
+
+---
+
+## ⭐ Future Improvements
+
+* 🔹 Integrate ML model for prediction
+* 🔹 Add database for complaint tracking
+* 🔹 Build frontend dashboard
+* 🔹 Add real-time notifications
+
+---
+
+## 🔗 Links
+
+* 🔹 GitHub Repository: *(Add your link here)*
+* 🔹 Hugging Face Deployment: *(Add your link here)*
+
+---
+
+🔥 Built for Hackathon Submission 🚀

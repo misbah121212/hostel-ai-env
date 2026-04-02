@@ -22,5 +22,19 @@ tasks = [
         "complaint": "Room extremely dirty for days",
         "label": "Cleaning",
         "priority": "High"
+    },
+
+    # HARD TASKS
+    {
+        "type": "hard",
+        "complaint": "Water leaking and lights not working",
+        "labels": ["Plumbing", "Electricity"],
+        "priority": "High"
+    },
+    {
+        "type": "hard",
+        "complaint": "Room dirty and fan not working",
+        "labels": ["Cleaning", "Electricity"],
+        "priority": "Medium"
     }
 ]
