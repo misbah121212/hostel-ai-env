@@ -1,3 +1,5 @@
+import random
+
 TASKS = [
     {
         "type": "easy",
@@ -18,3 +20,6 @@ TASKS = [
         "priority": "High"
     }
 ]
+
+def get_task():
+    return random.choice(TASKS)
