@@ -1,51 +1,31 @@
-import random
 from tasks import TASKS
 
 class HostelEnv:
     def __init__(self):
-        self.current_task = None
+        self.tasks = TASKS
+        self.index = 0
 
     def reset(self):
-        self.current_task = random.choice(TASKS)
-        return {
-            "task_type": self.current_task["type"],
-            "complaint": self.current_task["complaint"],
-            "priority": self.current_task.get("priority", None)
-        }
+        self.index = 0
+        return self.tasks[self.index]
 
     def step(self, action):
-        if not self.current_task:
-            return {"error": "Call reset first"}
+        current_task = self.tasks[self.index]
 
-        reward = 0
-        done = True
+        # simple grading logic
+        reward = 0.0
 
-        task_type = self.current_task["type"]
+        if action.get("priority", "").lower() == current_task["priority"].lower():
+            reward += 0.5
 
-        # EASY
-        if task_type == "easy":
-            if action.get("action") == self.current_task["label"]:
-                reward = 1
+        if action.get("category", "").lower() == current_task["category"].lower():
+            reward += 0.5
 
-        # MEDIUM
-        elif task_type == "medium":
-            if (
-                action.get("category") == self.current_task["label"]
-                and action.get("priority") == self.current_task["priority"]
-            ):
-                reward = 1
-
-        # HARD
-        elif task_type == "hard":
-            if (
-                set(action.get("categories", [])) == set(self.current_task["labels"])
-                and action.get("priority") == self.current_task["priority"]
-            ):
-                reward = 1
+        # move to next task
+        self.index += 1
+        done = self.index >= len(self.tasks)
 
         return {
             "reward": reward,
-            "done": done,
-            "task_type": task_type,
-            "correct_answer": self.current_task
+            "done": done
         }

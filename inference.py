@@ -1,43 +1,47 @@
-import requests
+import asyncio
+from env import HostelEnv
 
-BASE_URL = "http://localhost:7860"
+async def main():
+    env = HostelEnv()
 
-def reset_env():
-    response = requests.post(f"{BASE_URL}/reset")
-    return response.json()
+    # START
+    print("[START] task=hostel env=custom model=rule-based", flush=True)
 
-def take_step(action):
-    response = requests.post(f"{BASE_URL}/step", json=action)
-    return response.json()
+    rewards = []
+    steps = 0
 
+    state = env.reset()   # ✅ NO await
 
-if __name__ == "__main__":
-    # Example run
+    done = False
 
-    print("🔁 Resetting environment...")
-    task = reset_env()
-    print("Task:", task)
+    while not done and steps < 5:
+        steps += 1
 
-    task_type = task.get("task_type")
-
-    # EASY
-    if task_type == "easy":
-        action = {"action": "Cleaning"}
-
-    # MEDIUM
-    elif task_type == "medium":
+        # Simple logic
         action = {
             "category": "Cleaning",
             "priority": "High"
         }
 
-    # HARD
-    else:
-        action = {
-            "categories": ["Cleaning", "Electricity"],
-            "priority": "Medium"
-        }
+        result = env.step(action)   # ✅ NO await
 
-    print("➡️ Taking action:", action)
-    result = take_step(action)
-    print("✅ Result:", result)
+        reward = result.get("reward", 0.0)
+        done = result.get("done", False)
+
+        rewards.append(reward)
+
+        print(
+            f"[STEP] step={steps} action={action} reward={reward:.2f} done={str(done).lower()} error=null",
+            flush=True
+        )
+
+    score = sum(rewards)
+    success = score > 0
+
+    print(
+        f"[END] success={str(success).lower()} steps={steps} score={score:.2f} rewards={','.join([f'{r:.2f}' for r in rewards])}",
+        flush=True
+    )
+
+if __name__ == "__main__":
+    asyncio.run(main())
